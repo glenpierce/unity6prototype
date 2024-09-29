@@ -4,13 +4,14 @@ using UnityEngine;
 public class LevelGeneratorUnity : MonoBehaviour {
     void Start() {
         LevelGenerator levelGenerator = new LevelGenerator();
-        Level level = levelGenerator.GenerateBluePrint(10 ,10);
+        Level level = levelGenerator.GenerateBluePrint(100 ,100);
         foreach (var coordinatePair in level.getLevel()) {
-            Debug.Log("CoordinatePair: " + coordinatePair.x + ", " + coordinatePair.y);
+            createCubeAtPosition(coordinatePair.x, coordinatePair.y);
         }
     }
 
-    void Update() {
-        
+    void createCubeAtPosition(int x, int y) {
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.position = new Vector3(x, 0, y);
     }
 }
