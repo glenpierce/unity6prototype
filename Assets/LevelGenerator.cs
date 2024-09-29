@@ -13,17 +13,14 @@ namespace DefaultNamespace {
             Level level = new Level();
             var blueprint = new bool[(int) mapSize.x, (int) mapSize.y];
 
-            // Step 1: Initialize the blueprint with all false values
             for (var x = 0; x < mapSize.x; x++) {
                 for (var y = 0; y < mapSize.y; y++) {
                     blueprint[x, y] = false;
                 }
             }
 
-            // Step 2: Generate rooms and corridors
             generateRoomsAndCorridors(blueprint);
 
-            // Convert the 2D array to a list of Vector2 positions for walls
             for (var x = 0; x < mapSize.x; x++) {
                 for (var y = 0; y < mapSize.y; y++) {
                     if (!blueprint[x, y]) {
