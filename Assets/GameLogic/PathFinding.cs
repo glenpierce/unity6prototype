@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace GameLogic {
     public class PathFinding {
 
-        public static List<Node> FindPath(int[,] levelMap, int startX, int startY, int endX, int endY) {
+        public static List<Node> findPath(int[,] levelMap, int startX, int startY, int endX, int endY) {
             int width = levelMap.GetLength(0);
             int height = levelMap.GetLength(1);
             bool[,] closedSet = new bool[width, height];
