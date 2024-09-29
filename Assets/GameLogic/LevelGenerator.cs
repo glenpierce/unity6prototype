@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using DefaultNamespace;
 
-namespace DefaultNamespace {
+namespace GameLogic {
     public class LevelGenerator {
         private int seed;
         private Random random = new Random();
@@ -10,7 +11,7 @@ namespace DefaultNamespace {
         public Level GenerateBluePrint(int sizeX, int sizeY) {
             mapSize = new CoordinatePair<int>(sizeX, sizeY);
             seed = new Random().Next();
-            Level level = new Level();
+            Level level = new Level(sizeX, sizeY);
             var blueprint = new bool[(int) mapSize.x, (int) mapSize.y];
 
             for (var x = 0; x < mapSize.x; x++) {
@@ -24,7 +25,7 @@ namespace DefaultNamespace {
             for (var x = 0; x < mapSize.x; x++) {
                 for (var y = 0; y < mapSize.y; y++) {
                     if (!blueprint[x, y]) {
-                        level.add(new CoordinatePair<int>(x, y));
+                        level.add(x, y, 1);
                     }
                 }
             }
