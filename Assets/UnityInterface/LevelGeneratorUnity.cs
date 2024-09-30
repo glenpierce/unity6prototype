@@ -6,8 +6,10 @@ using UnityEngine;
 public class LevelGeneratorUnity : MonoBehaviour {
     public GameObject levelContainer;
     public GameObject npc;
+    private bool npcIsInititalized = false;
     private Level level;
     private List<Node> path;
+    private bool pathIsCalculated = false;
     void Start() {
         LevelGenerator levelGenerator = new LevelGenerator();
         level = levelGenerator.GenerateBluePrint(100 ,100);
@@ -46,22 +48,24 @@ public class LevelGeneratorUnity : MonoBehaviour {
     }
     
     private void handleMouseClick(int x, int y) {
-        if (npc == null) {
+        if (npcIsInititalized == false) {
             npc = GameObject.CreatePrimitive(PrimitiveType.Cube);
             npc.transform.position = new Vector3(x, 0, y);
+            npcIsInititalized = true;
         } else {
             path = PathFinding.findPath(level.getLevel(), (int) npc.transform.position.x, (int) npc.transform.position.z, x, y);
+            pathIsCalculated = true;
         }
     }
 
     private void moveNPCIfPathExists() {
-        if (path != null) {
+        if (pathIsCalculated) {
             moveNPC(path);
         }
     }
 
     private void moveNPC(List<Node> nodes) {
-        if (npc == null) return;
+        if (npcIsInititalized == false) return;
         if (nodes.Count == 0) return;
         Node nextNode = nodes[0];
         Vector3 target = new Vector3(nextNode.X, 0, nextNode.Y);

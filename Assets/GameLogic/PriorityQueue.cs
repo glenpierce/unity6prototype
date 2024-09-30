@@ -2,15 +2,15 @@
 
 namespace GameLogic {
     public class PriorityQueue<T> {
-        private List<KeyValuePair<T, float>> elements = new List<KeyValuePair<T, float>>();
+        private List<KeyValuePair<T, double>> elements = new List<KeyValuePair<T, double>>();
 
         public int Count => elements.Count;
 
-        public void Enqueue(T item, float priority) {
-            elements.Add(new KeyValuePair<T, float>(item, priority));
+        public void enqueue(T item, double priority) {
+            elements.Add(new KeyValuePair<T, double>(item, priority));
         }
 
-        public T Dequeue() {
+        public T dequeue() {
             int bestIndex = 0;
 
             for (int i = 0; i < elements.Count; i++) {
@@ -24,7 +24,7 @@ namespace GameLogic {
             return bestItem;
         }
 
-        public bool Contains(T item) {
+        public bool contains(T item) {
             for (int i = 0; i < elements.Count; i++) {
                 if (elements[i].Key.Equals(item)) {
                     return true;

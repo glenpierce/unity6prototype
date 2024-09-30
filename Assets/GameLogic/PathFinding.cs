@@ -16,12 +16,12 @@ namespace GameLogic {
             Node startNode = new Node(startX, startY);
             Node endNode = new Node(endX, endY);
 
-            openSet.Enqueue(startNode, 0);
+            openSet.enqueue(startNode, 0);
             gScore[startNode] = 0;
             fScore[startNode] = heuristicCostEstimate(startNode, endNode);
 
             while (openSet.Count > 0) {
-                Node current = openSet.Dequeue();
+                Node current = openSet.dequeue();
 
                 if (current.Equals(endNode)) {
                     return reconstructPath(cameFrom, current);
@@ -42,8 +42,8 @@ namespace GameLogic {
 
             float tentativeGScore = gScore[current] + distBetween(current, neighbor);
 
-            if (!openSet.Contains(neighbor)) {
-                openSet.Enqueue(neighbor, tentativeGScore);
+            if (!openSet.contains(neighbor)) {
+                openSet.enqueue(neighbor, tentativeGScore);
             } else if (tentativeGScore >= gScore[neighbor]) {
                 return;
             }
