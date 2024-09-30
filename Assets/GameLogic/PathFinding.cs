@@ -27,7 +27,7 @@ namespace GameLogic {
                     return reconstructPath(cameFrom, current);
                 }
 
-                closedSet[current.X, current.Y] = true;
+                closedSet[current.Position.x, current.Position.y] = true;
 
                 foreach (Node neighbor in getNeighbors(current, levelMap)) {
                     processNeighbor(neighbor, current, endNode, closedSet, openSet, cameFrom, gScore, fScore, levelMap);
@@ -38,7 +38,7 @@ namespace GameLogic {
         }
         
         private static void processNeighbor(Node neighbor, Node current, Node endNode, bool[,] closedSet, PriorityQueue<Node> openSet, Dictionary<Node, Node> cameFrom, Dictionary<Node, float> gScore, Dictionary<Node, float> fScore, int[,] levelMap) {
-            if (closedSet[neighbor.X, neighbor.Y]) return;
+            if (closedSet[neighbor.Position.x, neighbor.Position.y]) return;
 
             float tentativeGScore = gScore[current] + distBetween(current, neighbor);
 
@@ -54,7 +54,7 @@ namespace GameLogic {
         }
 
         private static float heuristicCostEstimate(Node a, Node b) {
-            return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
+            return Math.Abs(a.Position.x - b.Position.x) + Math.Abs(a.Position.y - b.Position.y);
         }
 
         private static float distBetween(Node a, Node b) {
@@ -66,10 +66,10 @@ namespace GameLogic {
             int width = levelMap.GetLength(0);
             int height = levelMap.GetLength(1);
 
-            if (node.X - 1 >= 0 && levelMap[node.X - 1, node.Y] == 0) neighbors.Add(new Node(node.X - 1, node.Y));
-            if (node.X + 1 < width && levelMap[node.X + 1, node.Y] == 0) neighbors.Add(new Node(node.X + 1, node.Y));
-            if (node.Y - 1 >= 0 && levelMap[node.X, node.Y - 1] == 0) neighbors.Add(new Node(node.X, node.Y - 1));
-            if (node.Y + 1 < height && levelMap[node.X, node.Y + 1] == 0) neighbors.Add(new Node(node.X, node.Y + 1));
+            if (node.Position.x - 1 >= 0 && levelMap[node.Position.x - 1, node.Position.y] == 0) neighbors.Add(new Node(node.Position.x - 1, node.Position.y));
+            if (node.Position.x + 1 < width && levelMap[node.Position.x + 1, node.Position.y] == 0) neighbors.Add(new Node(node.Position.x + 1, node.Position.y));
+            if (node.Position.y - 1 >= 0 && levelMap[node.Position.x, node.Position.y - 1] == 0) neighbors.Add(new Node(node.Position.x, node.Position.y - 1));
+            if (node.Position.y + 1 < height && levelMap[node.Position.x, node.Position.y + 1] == 0) neighbors.Add(new Node(node.Position.x, node.Position.y + 1));
 
             return neighbors;
         }

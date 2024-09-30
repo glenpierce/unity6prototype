@@ -68,7 +68,7 @@ public class LevelGeneratorUnity : MonoBehaviour {
         if (npcIsInititalized == false) return;
         if (nodes.Count == 0) return;
         Node nextNode = nodes[0];
-        Vector3 target = new Vector3(nextNode.X, 0, nextNode.Y);
+        Vector3 target = new Vector3(nextNode.Position.x, 0, nextNode.Position.y);
         npc.transform.position = Vector3.MoveTowards(npc.transform.position, target, 0.1f);
         if (Vector3.Distance(npc.transform.position, target) < 0.1f) {
             nodes.RemoveAt(0);
