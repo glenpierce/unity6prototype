@@ -2,26 +2,22 @@
 using System.Collections.Generic;
 
 namespace GameLogic {
-    
-    public struct Point {
-        public double x, y;
-    }
  
     public struct Region {
-        public Point site; // The site that this region is based on
-        public List<Point> vertices; // The vertices of this region
+        public Point<double> site; // The site that this region is based on
+        public List<Point<double>> vertices; // The vertices of this region
         
-        public Region(Point site) {
+        public Region(Point<double> site) {
             this.site = site;
-            this.vertices = new List<Point>();
+            this.vertices = new List<Point<double>>();
         }
     }
     
     public class Breakpoint {
-        public Point Left { get; }
-        public Point Right { get; }
+        public Point<double> Left { get; }
+        public Point<double> Right { get; }
 
-        public Breakpoint(Point left, Point right) {
+        public Breakpoint(Point<double> left, Point<double> right) {
             Left = left;
             Right = right;
         }
@@ -29,15 +25,15 @@ namespace GameLogic {
     
     public class Voronoi {
         
-        private List<Point> points;
+        private List<Point<double>> points;
         private List<Region> regions;
         private BeachLine beachLine;
 
-        public Voronoi(List<Point> points) {
+        public Voronoi(List<Point<double>> points) {
             this.points = points;
             this.regions = new List<Region>();
             this.beachLine = new BeachLine();
-            foreach (Point point in points) {
+            foreach (Point<double> point in points) {
                 regions.Add(new Region(point));
             }
         }
@@ -85,7 +81,7 @@ namespace GameLogic {
             addCircleEvent(newArc.RightBreakpoint, eventQueue);
         }
 
-        private Arc findArcAbove(Point site) {
+        private Arc findArcAbove(Point<double> site) {
             // Logic to find the arc above the new site
             // This typically involves traversing the beach line
             return beachLine.FindArcAbove(site);
@@ -94,20 +90,20 @@ namespace GameLogic {
         private void addCircleEvent(Breakpoint breakpoint, PriorityQueue<Event> eventQueue) {
             // Logic to add a circle event for the given breakpoint
             // This typically involves calculating the circle center and radius
-            Point circleCenter = calculateCircleCenter(breakpoint);
+            Point<double> circleCenter = calculateCircleCenter(breakpoint);
             double radius = calculateCircleRadius(breakpoint, circleCenter);
-            Point circleEventPoint = new Point { x = circleCenter.x, y = circleCenter.y - radius };
+            Point<double> circleEventPoint = new Point<double> { x = circleCenter.x, y = circleCenter.y - radius };
 
             // Add the circle event to the event queue
             eventQueue.enqueue(new Event(circleEventPoint, EventType.Circle), circleEventPoint.y);
         }
 
-        private Point calculateCircleCenter(Breakpoint breakpoint) {
+        private Point<double> calculateCircleCenter(Breakpoint breakpoint) {
             // Logic to calculate the center of the circle formed by the breakpoint
-            return new Point { x = (breakpoint.Left.x + breakpoint.Right.x) / 2, y = (breakpoint.Left.y + breakpoint.Right.y) / 2 };
+            return new Point<double> { x = (breakpoint.Left.x + breakpoint.Right.x) / 2, y = (breakpoint.Left.y + breakpoint.Right.y) / 2 };
         }
 
-        private double calculateCircleRadius(Breakpoint breakpoint, Point center) {
+        private double calculateCircleRadius(Breakpoint breakpoint, Point<double> center) {
             // Logic to calculate the radius of the circle formed by the breakpoint
             return Math.Sqrt(Math.Pow(breakpoint.Left.x - center.x, 2) + Math.Pow(breakpoint.Left.y - center.y, 2));
         }
@@ -139,7 +135,7 @@ namespace GameLogic {
                 arcs = new List<Arc>();
             }
 
-            public Arc FindArcAbove(Point site) {
+            public Arc FindArcAbove(Point<double> site) {
                 // Logic to find the arc directly above the given site
                 // This typically involves traversing the list of arcs
                 foreach (var arc in arcs) {
@@ -158,7 +154,7 @@ namespace GameLogic {
                 arcs.Remove(arc);
             }
 
-            private bool isAbove(Arc arc, Point site) {
+            private bool isAbove(Arc arc, Point<double> site) {
                 // Calculate the directrix of the arc's site
                 double directrix = arc.Site.y;
 
@@ -171,10 +167,10 @@ namespace GameLogic {
         }
 
         private class Event {
-            public Point Point { get; }
+            public Point<double> Point { get; }
             public EventType Type { get; }
 
-            public Event(Point point, EventType type) {
+            public Event(Point<double> point, EventType type) {
                 Point = point;
                 Type = type;
             }
