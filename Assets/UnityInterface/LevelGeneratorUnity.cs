@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DefaultNamespace;
 using GameLogic;
+using GameLogic.VoronoiAlgorithm;
 using UnityEngine;
 using UnityInterface;
 

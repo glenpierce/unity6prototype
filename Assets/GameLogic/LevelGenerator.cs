@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultNamespace;
+using GameLogic.VoronoiAlgorithm;
 using Random = System.Random;
 
 namespace GameLogic {
