@@ -28,11 +28,13 @@ namespace GameLogic {
         private List<Point<double>> points;
         private List<Region> regions;
         private BeachLine beachLine;
+        private LoggerInterface logger;
 
-        public Voronoi(List<Point<double>> points) {
+        public Voronoi(List<Point<double>> points, LoggerInterface logger) {
             this.points = points;
             this.regions = new List<Region>();
             this.beachLine = new BeachLine();
+            this.logger = logger;
             foreach (Point<double> point in points) {
                 regions.Add(new Region(point));
             }
@@ -51,7 +53,7 @@ namespace GameLogic {
                 if (e.Type == EventType.Site) {
                     handleSiteEvent(e, eventQueue);
                 } else {
-                    handleCircleEvent(e, eventQueue);
+                    handleCircleEvent(e, eventQueue, logger);
                 }
             }
 
@@ -62,9 +64,21 @@ namespace GameLogic {
             // Create a new region for the site
             Region newRegion = new Region(e.Point);
             regions.Add(newRegion);
+            
+            if (beachLine.isEmpty()) {
+                // Create the initial arc with valid breakpoints
+                Breakpoint initialBreakpoint = new Breakpoint(e.Point, e.Point);
+                Arc initialArc = new Arc(e.Point, initialBreakpoint, initialBreakpoint);
+                beachLine.addArc(initialArc);
+                return;
+            }
 
             // Find the arc above the new site
             Arc aboveArc = findArcAbove(e.Point);
+            
+            if (aboveArc == null) {
+                return;
+            }
 
             // Create new breakpoints and arcs
             Breakpoint leftBreakpoint = new Breakpoint(aboveArc.Left, e.Point);
@@ -84,10 +98,13 @@ namespace GameLogic {
         private Arc findArcAbove(Point<double> site) {
             // Logic to find the arc above the new site
             // This typically involves traversing the beach line
-            return beachLine.FindArcAbove(site);
+            return beachLine.findArcAbove(site);
         }
 
         private void addCircleEvent(Breakpoint breakpoint, PriorityQueue<Event> eventQueue) {
+            if (breakpoint == null) {
+                return;
+            }
             // Logic to add a circle event for the given breakpoint
             // This typically involves calculating the circle center and radius
             Point<double> circleCenter = calculateCircleCenter(breakpoint);
@@ -108,10 +125,16 @@ namespace GameLogic {
             return Math.Sqrt(Math.Pow(breakpoint.Left.x - center.x, 2) + Math.Pow(breakpoint.Left.y - center.y, 2));
         }
 
-        private void handleCircleEvent(Event e, PriorityQueue<Event> eventQueue) {
+        private void handleCircleEvent(Event e, PriorityQueue<Event> eventQueue, LoggerInterface logger) {
             // Remove the arc associated with the circle event
-            Arc arcToRemove = beachLine.FindArcAbove(e.Point);
-            if (arcToRemove == null) return;
+            Arc arcToRemove = beachLine.findArcAbove(e.Point);
+            if (arcToRemove == null) {
+                logger.Log("Arc not found");
+                return;
+            } else {
+              // log the arc in Unity
+                logger.Log("Arc: " + arcToRemove.Site.x + ", " + arcToRemove.Site.y);
+            }
 
             // Remove the arc from the beachline
             beachLine.removeArc(arcToRemove);
@@ -134,8 +157,12 @@ namespace GameLogic {
             public BeachLine() {
                 arcs = new List<Arc>();
             }
+            
+            public bool isEmpty() {
+                return arcs.Count == 0;
+            }
 
-            public Arc FindArcAbove(Point<double> site) {
+            public Arc findArcAbove(Point<double> site) {
                 // Logic to find the arc directly above the given site
                 // This typically involves traversing the list of arcs
                 foreach (var arc in arcs) {
@@ -162,7 +189,7 @@ namespace GameLogic {
                 double parabolaY = (Math.Pow(site.x - arc.Site.x, 2) + Math.Pow(directrix, 2) - Math.Pow(site.y, 2)) / (2 * (directrix - site.y));
 
                 // The site is above the arc if its y-coordinate is less than the parabola's y-coordinate
-                return site.y < parabolaY;
+                return site.y >= parabolaY;
             }
         }
 

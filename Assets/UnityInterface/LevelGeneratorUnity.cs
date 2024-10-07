@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using DefaultNamespace;
 using GameLogic;
 using UnityEngine;
+using UnityInterface;
 
 public class LevelGeneratorUnity : MonoBehaviour {
     public GameObject levelContainer;
@@ -11,8 +12,8 @@ public class LevelGeneratorUnity : MonoBehaviour {
     private List<Node> path;
     private bool pathIsCalculated = false;
     void Start() {
-        LevelGenerator levelGenerator = new LevelGenerator();
-        level = levelGenerator.GenerateBluePrint(100 ,100);
+        LevelGenerator levelGenerator = new LevelGenerator(new UnityLogger());
+        level = levelGenerator.generateBluePrint(100 ,100);
         int[,] levelMap = level.getLevel();
         for (int x = 0; x < levelMap.GetLength(0); x++) {
             for (int y = 0; y < levelMap.GetLength(1); y++) {
@@ -20,6 +21,38 @@ public class LevelGeneratorUnity : MonoBehaviour {
                     createCubeAtPosition(x, y);
                 }
             }
+        }
+        List<Region> regions = levelGenerator.generateVoronoi(100, 100, 5);
+        foreach (Region region in regions) {
+            Debug.Log("Region: " + region.vertices.Count);
+            Mesh mesh = new Mesh();
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+
+            // Convert region points to Unity vertices
+            foreach (Point<double> point in region.vertices) {
+                vertices.Add(new Vector3((float)point.x, (float)point.y, 0));
+                Debug.Log("Point: " + point.x + ", " + point.y);
+            }
+
+            // Triangulate the region (assuming the points are in order)
+            for (int i = 1; i < vertices.Count - 1; i++) {
+                triangles.Add(0);
+                triangles.Add(i);
+                triangles.Add(i + 1);
+            }
+
+            mesh.vertices = vertices.ToArray();
+            mesh.triangles = triangles.ToArray();
+            mesh.RecalculateNormals();
+
+            // Create a GameObject to hold the mesh
+            GameObject regionObject = new GameObject("Region");
+            MeshFilter meshFilter = regionObject.AddComponent<MeshFilter>();
+            MeshRenderer meshRenderer = regionObject.AddComponent<MeshRenderer>();
+
+            meshFilter.mesh = mesh;
+            meshRenderer.material = new Material(Shader.Find("Standard"));
         }
     }
 

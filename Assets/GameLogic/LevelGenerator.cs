@@ -1,16 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultNamespace;
+using Random = System.Random;
 
 namespace GameLogic {
     public class LevelGenerator {
         private int seed;
-        private Random random = new Random();
+        private Random random;
         private CoordinatePair<int> mapSize;
+        private LoggerInterface logger;
+        
+        public LevelGenerator(LoggerInterface logger) {
+            this.logger = logger;
+        }
+        
+        public List<Region> generateVoronoi(int sizeX, int sizeY, int numRegions) {
+            seed = new Random().Next();
+            random = new Random(seed);
+            
+            List<Point<double>> points = new List<Point<double>>();
+            for (int i = 0; i < numRegions; i++) {
+                for (int j = 0; j < numRegions; j++) {
+                    Point<double> point = new Point<double>(random.Next(0, sizeX), random.Next(0, sizeY));
+                    logger.Log("Point: " + point.x + ", " + point.y);
+                    points.Add(point);
+                }
+            }
+            
+            
+            Voronoi voronoi = new Voronoi(points, logger);
+            List<Region> regions = voronoi.generate();
+            return regions;
+        }
 
-        public Level GenerateBluePrint(int sizeX, int sizeY) {
+        public Level generateBluePrint(int sizeX, int sizeY) {
             mapSize = new CoordinatePair<int>(sizeX, sizeY);
             seed = new Random().Next();
+            random = new Random(seed);
             Level level = new Level(sizeX, sizeY);
             var blueprint = new bool[(int) mapSize.x, (int) mapSize.y];
 
@@ -43,6 +69,7 @@ namespace GameLogic {
         }
         
         private void generateRooms(bool[,] blueprint, int roomCount, int roomSize, List<CoordinatePair<int>> roomPositions) {
+            random = new Random(seed);
             for (int i = 0; i < roomCount; i++) {
                 int roomX = random.Next(0, (int) mapSize.x - roomSize);
                 int roomY = random.Next(0, (int) mapSize.y - roomSize);
