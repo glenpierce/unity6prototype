@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 
 namespace GameLogic.VoronoiAlgorithm {
-    
+
     public enum EventType {
         Site,
         Circle
     }
-    
+
     public class Voronoi {
-        
+
         private List<Point<double>> points;
         private List<Region> regions;
         private BeachLine beachLine;
@@ -18,7 +18,7 @@ namespace GameLogic.VoronoiAlgorithm {
         public Voronoi(List<Point<double>> points, LoggerInterface logger) {
             this.points = points;
             this.regions = new List<Region>();
-            this.beachLine = new BeachLine();
+            this.beachLine = new BeachLine(logger);
             this.logger = logger;
         }
 
@@ -45,9 +45,10 @@ namespace GameLogic.VoronoiAlgorithm {
         private void handleSiteEvent(Event e, PriorityQueue<Event> eventQueue) {
             Region newRegion = new Region(e.Point);
             regions.Add(newRegion);
+            logger.Log(e.Point.x + ", " + e.Point.y);
 
             if (beachLine.isEmpty()) {
-                // First point: create the initial arc
+                logger.Log("beachLine is empty");
                 Arc initialArc = new Arc(e.Point);
                 initialArc.region = newRegion;
                 beachLine.addArc(initialArc);
@@ -57,33 +58,43 @@ namespace GameLogic.VoronoiAlgorithm {
             Arc aboveArc = beachLine.findArcAbove(e.Point);
 
             if (aboveArc == null) {
+                logger.Log("aboveArc is null");
                 return;
             }
 
-            if (aboveArc.LeftBreakpoint == null && aboveArc.RightBreakpoint == null) {
-                // Second point: split the initial arc into two arcs
-                Arc newArc = new Arc(e.Point);
-                newArc.region = newRegion;
-                Breakpoint newBreakpoint = new Breakpoint(aboveArc.Site, e.Point);
+            Arc newArc = new Arc(e.Point);
+            newArc.region = newRegion;
 
-                aboveArc.RightArc = newArc;
-                aboveArc.RightBreakpoint = newBreakpoint;
-                newArc.LeftArc = aboveArc;
-                newArc.LeftBreakpoint = newBreakpoint;
+            Arc leftArc = new Arc(aboveArc.Site);
+            leftArc.region = aboveArc.region;
 
-                beachLine.addArc(newArc);
-            } else {
-                // Third point and beyond: handle normally
-                Arc newArc = new Arc(e.Point);
-                newArc.region = newRegion;
-                beachLine.addArc(newArc);
+            Arc rightArc = new Arc(aboveArc.Site);
+            rightArc.region = aboveArc.region;
 
-                addCircleEvent(aboveArc, eventQueue);
-            }
+            leftArc.RightArc = newArc;
+            newArc.LeftArc = leftArc;
+            newArc.RightArc = rightArc;
+            rightArc.LeftArc = newArc;
+
+            aboveArc.LeftArc = leftArc;
+            aboveArc.RightArc = rightArc;
+
+            beachLine.addArc(leftArc);
+            beachLine.addArc(newArc);
+            beachLine.addArc(rightArc);
+
+            // Add edges to regions
+            aboveArc.region.addEdge(aboveArc.Site, e.Point);
+            newRegion.addEdge(aboveArc.Site, e.Point);
+
+            addCircleEvent(leftArc, eventQueue);
+            addCircleEvent(rightArc, eventQueue);
         }
 
         private void addCircleEvent(Arc arc, PriorityQueue<Event> eventQueue) {
+            logger.Log("adding circle event");
             if (arc == null || arc.LeftArc == null || arc.RightArc == null) {
+                logger.Log("arc is null");
                 return;
             }
 
@@ -103,6 +114,7 @@ namespace GameLogic.VoronoiAlgorithm {
 
             // The circle event occurs at the bottom of the circumcircle
             Point<double> circleEventPoint = new Point<double> { x = ux, y = uy - radius };
+            logger.Log("Circle event: " + circleEventPoint.x + ", " + circleEventPoint.y);
 
             // Add the circle event to the event queue
             Event circleEvent = new Event(circleEventPoint, EventType.Circle);
@@ -110,18 +122,9 @@ namespace GameLogic.VoronoiAlgorithm {
             eventQueue.enqueue(circleEvent, circleEventPoint.y);
         }
 
-        private Point<double> calculateCircleCenter(Breakpoint breakpoint) {
-            // Logic to calculate the center of the circle formed by the breakpoint
-            return new Point<double> { x = (breakpoint.LeftPoint.x + breakpoint.RightPoint.x) / 2, y = (breakpoint.LeftPoint.y + breakpoint.RightPoint.y) / 2 };
-        }
-
-        private double calculateCircleRadius(Breakpoint breakpoint, Point<double> center) {
-            // Logic to calculate the radius of the circle formed by the breakpoint
-            return Math.Sqrt(Math.Pow(breakpoint.LeftPoint.x - center.x, 2) + Math.Pow(breakpoint.LeftPoint.y - center.y, 2));
-        }
-
         private void handleCircleEvent(Event e, PriorityQueue<Event> eventQueue, LoggerInterface logger) {
             // Remove the arc associated with the circle event
+            logger.Log("HandleCircleEvent: " + e.Point.x + ", " + e.Point.y);
             Arc arcToRemove = beachLine.findArcAbove(e.Point);
             if (arcToRemove == null) {
                 logger.Log("Arc not found");
@@ -137,20 +140,12 @@ namespace GameLogic.VoronoiAlgorithm {
                 Region rightRegion = arcToRemove.RightArc.region;
                 // Update the regions with the new Voronoi cell information
                 // This typically involves adding the new edge to the regions
-                // leftRegion.AddEdge(newEdge);
-                // rightRegion.AddEdge(newEdge);
+                leftRegion.addEdge(arcToRemove.LeftArc.Site, arcToRemove.RightArc.Site);
+                rightRegion.addEdge(arcToRemove.LeftArc.Site, arcToRemove.RightArc.Site);
             }
 
             // Remove the arc from the beachline
             beachLine.removeArc(arcToRemove);
-
-            // Create new breakpoints and arcs for the neighboring arcs
-            Breakpoint newLeftBreakpoint = new Breakpoint(arcToRemove.LeftArc.Site, arcToRemove.RightArc.Site);
-            Arc newArc = new Arc(arcToRemove.LeftArc.Site);
-            newArc.region = arcToRemove.LeftArc.region;
-
-            // Update the beachline with the new arc
-            beachLine.addArc(newArc);
         }
     }
 }

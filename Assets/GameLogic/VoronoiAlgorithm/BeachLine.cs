@@ -3,19 +3,34 @@
 namespace GameLogic.VoronoiAlgorithm {
     public class BeachLine {
         private AVLTree<Arc> arcs;
+        private LoggerInterface logger;
 
-        public BeachLine() {
+        public BeachLine(LoggerInterface logger) {
             arcs = new AVLTree<Arc>();
+            this.logger = logger;
         }
         
         public bool isEmpty() {
-            return arcs == null;
+            return arcs == null || arcs.root == null;
         }
 
         public Arc findArcAbove(Point<double> site) {
             Arc arc = getRootArc();
-            while (arc != null) {
+            logger.Log($"Finding arc above ({site.x}, {site.y})");
+            if (arc == null) {
+                logger.Log("No arcs in the beachline, creating a new arc");
+                Arc newArc = new Arc(site);
+                addArc(newArc);
+                return newArc;
+            }
+
+            Arc lastArc = null;
+            int i = 0;
+            while (arc != null && i < 100) {
+                i++; // prevent infinite loop
+                lastArc = arc;
                 double x = getXOfParabolaIntersection(arc, site.y);
+                logger.Log($"Checking arc at ({arc.Site.x}, {arc.Site.y}) with intersection x: {x}");
                 if (site.x < x) {
                     if (arc.LeftArc == null) break;
                     arc = arc.LeftArc;
@@ -24,15 +39,19 @@ namespace GameLogic.VoronoiAlgorithm {
                     arc = arc.RightArc;
                 }
             }
-            return arc;
+
+            if (lastArc == null) {
+                logger.Log("No arc found above the site, creating a new arc");
+                Arc newArc = new Arc(site);
+                addArc(newArc);
+                return newArc;
+            }
+
+            return lastArc;
         }
 
         private Arc getRootArc() {
-            if (arcs.root == null) {
-                return null;
-            } else {
-                return arcs.root.value;
-            }
+            return arcs.root?.value;
         }
 
         public void addArc(Arc newArc) {

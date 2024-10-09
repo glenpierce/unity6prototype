@@ -9,5 +9,10 @@ namespace GameLogic.VoronoiAlgorithm {
             this.site = site;
             this.vertices = new List<Point<double>>();
         }
+        
+        public void addEdge(Point<double> start, Point<double> end) {
+            vertices.Add(start);
+            vertices.Add(end);
+        }
     }
 }
