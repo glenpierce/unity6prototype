@@ -28,6 +28,8 @@ namespace GameLogic.VoronoiAlgorithm {
             foreach (Point<double> point in points) {
                 eventQueue.enqueue(new Event(point, EventType.Site), point.y);
             }
+            
+            logger.Log(eventQueue.Count + "events in the queue");
 
             // Process events
             while (eventQueue.Count > 0) {
@@ -43,9 +45,13 @@ namespace GameLogic.VoronoiAlgorithm {
         }
 
         private void handleSiteEvent(Event e, PriorityQueue<Event> eventQueue) {
+            if(e == null) {
+                logger.Log("Event is null");
+                return;
+            }
             Region newRegion = new Region(e.Point);
             regions.Add(newRegion);
-            logger.Log(e.Point.x + ", " + e.Point.y);
+            // logger.Log(e.Point.x + ", " + e.Point.y);
 
             if (beachLine.isEmpty()) {
                 logger.Log("beachLine is empty");
@@ -92,11 +98,13 @@ namespace GameLogic.VoronoiAlgorithm {
         }
 
         private void addCircleEvent(Arc arc, PriorityQueue<Event> eventQueue) {
-            logger.Log("adding circle event");
+            // logger.Log("adding circle event");
             if (arc == null || arc.LeftArc == null || arc.RightArc == null) {
                 logger.Log("arc is null");
                 return;
             }
+            
+            logger.Log("actually handling circle event");
 
             Point<double> a = arc.LeftArc.Site;
             Point<double> b = arc.Site;
@@ -130,7 +138,6 @@ namespace GameLogic.VoronoiAlgorithm {
                 logger.Log("Arc not found");
                 return;
             } else {
-                // log the arc in Unity
                 logger.Log("Arc: " + arcToRemove.Site.x + ", " + arcToRemove.Site.y);
             }
 
