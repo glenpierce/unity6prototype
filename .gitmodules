@@ -1,0 +1,3 @@
+[submodule "Assets/Plugins/Steamworks.NET"]
+	path = Assets/Plugins/Steamworks.NET
+	url = https://github.com/rlabrecque/Steamworks.NET.git
