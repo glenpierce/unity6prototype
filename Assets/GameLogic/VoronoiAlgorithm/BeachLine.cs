@@ -40,19 +40,7 @@ namespace GameLogic.VoronoiAlgorithm {
 
             return arc;
         }
-
-        private Arc getRootArc() {
-            return arcs?.root?.value;
-        }
-
-        public void addArc(Arc newArc) {
-            arcs.Insert(newArc);
-        }
-
-        public void removeArc(Arc arc) {
-            arcs.Delete(arc);
-        }
-
+        
         private double getXOfParabolaIntersection(Arc arc, double y) {
             double deltaY = 2 * (arc.Site.y - y);
             double inverseDeltaY = 1 / deltaY;
@@ -75,6 +63,38 @@ namespace GameLogic.VoronoiAlgorithm {
             double intersectionX2 = (-coefficientB - Math.Sqrt(discriminant)) / (2 * coefficientA);
 
             return arc.Site.y < arc.LeftArc.Site.y ? Math.Max(intersectionX1, intersectionX2) : Math.Min(intersectionX1, intersectionX2);
+        }
+
+        private Arc getRootArc() {
+            return arcs?.root?.value;
+        }
+
+        public void addArc(Arc newArc) {
+            arcs.Insert(newArc);
+        }
+
+        public void removeArc(Arc arc) {
+            arcs.Delete(arc);
+        }
+        
+        public Arc getLeftNeighbor(Arc arc) {
+            if (arc == null) return null;
+
+            AVLNode<Arc> node = arcs.Find(arc);
+            if (node == null) return null;
+
+            AVLNode<Arc> predecessor = node.predecessor();
+            return predecessor?.value;
+        }
+        
+        public Arc getRightNeighbor(Arc arc) {
+            if (arc == null) return null;
+
+            AVLNode<Arc> node = arcs.Find(arc);
+            if (node == null) return null;
+
+            AVLNode<Arc> successor = node.successor();
+            return successor?.value;
         }
     }
 }

@@ -23,7 +23,7 @@ public class LevelGeneratorUnity : MonoBehaviour {
                 }
             }
         }
-        // voronoiAlgorithm(levelGenerator); // Never mind. I give up.
+        voronoiAlgorithm(levelGenerator); // Never mind. I give up.
     }
 
     void voronoiAlgorithm(LevelGenerator levelGenerator) {

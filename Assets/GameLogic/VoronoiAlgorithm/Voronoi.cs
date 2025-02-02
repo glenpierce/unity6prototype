@@ -45,6 +45,7 @@ namespace GameLogic.VoronoiAlgorithm {
         }
 
         private void handleSiteEvent(Event e, PriorityQueue<Event> eventQueue) {
+            logger.Log("site event");
             if(e == null) {
                 logger.Log("Event is null");
                 return;
@@ -52,63 +53,48 @@ namespace GameLogic.VoronoiAlgorithm {
             Region newRegion = new Region(e.Point);
             regions.Add(newRegion);
             // logger.Log(e.Point.x + ", " + e.Point.y);
-
-            if (beachLine.isEmpty()) {
-                logger.Log("beachLine is empty");
-                Arc initialArc = new Arc(e.Point);
-                initialArc.region = newRegion;
-                beachLine.addArc(initialArc);
-                return;
-            }
-
-            Arc aboveArc = beachLine.findArcAbove(e.Point);
-
-            if (aboveArc == null) {
-                logger.Log("aboveArc is null");
-                return;
-            }
-
+            
             Arc newArc = new Arc(e.Point);
             newArc.region = newRegion;
-
-            Arc leftArc = new Arc(aboveArc.Site);
-            leftArc.region = aboveArc.region;
-
-            Arc rightArc = new Arc(aboveArc.Site);
-            rightArc.region = aboveArc.region;
-
-            leftArc.RightArc = newArc;
-            newArc.LeftArc = leftArc;
-            newArc.RightArc = rightArc;
-            rightArc.LeftArc = newArc;
-
-            aboveArc.LeftArc = leftArc;
-            aboveArc.RightArc = rightArc;
-
-            beachLine.addArc(leftArc);
+           
+            bool earlyReturn = beachLine.isEmpty();
+            
             beachLine.addArc(newArc);
-            beachLine.addArc(rightArc);
 
-            // Add edges to regions
-            aboveArc.region.addEdge(aboveArc.Site, e.Point);
-            newRegion.addEdge(aboveArc.Site, e.Point);
+            if (earlyReturn) {
+                logger.Log("beachLine was empty");
+                return;
+            }
+            
+            // Find the neighboring arcs
+            Arc leftArc = beachLine.getLeftNeighbor(newArc);
+            Arc rightArc = beachLine.getRightNeighbor(newArc);
 
-            addCircleEvent(leftArc, eventQueue);
-            addCircleEvent(rightArc, eventQueue);
+            // Check for circle events with the left neighbor
+            if (leftArc != null) {
+                addCircleEvent(leftArc, eventQueue);
+            }
+
+            // Check for circle events with the right neighbor
+            if (rightArc != null) {
+                addCircleEvent(rightArc, eventQueue);
+            }
         }
 
         private void addCircleEvent(Arc arc, PriorityQueue<Event> eventQueue) {
-            // logger.Log("adding circle event");
-            if (arc == null || arc.LeftArc == null || arc.RightArc == null) {
+            logger.Log("adding circle event");
+            Arc leftNeighbor = beachLine.getLeftNeighbor(arc);
+            Arc rightNeighbor = beachLine.getRightNeighbor(arc);
+            if(arc == null || leftNeighbor == null || rightNeighbor == null) {
                 logger.Log("arc is null");
                 return;
             }
             
             logger.Log("actually handling circle event");
 
-            Point<double> a = arc.LeftArc.Site;
+            Point<double> a = leftNeighbor.Site;
             Point<double> b = arc.Site;
-            Point<double> c = arc.RightArc.Site;
+            Point<double> c = rightNeighbor.Site;
 
             // Calculate the circumcenter of the triangle formed by points a, b, and c
             double d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
@@ -142,13 +128,15 @@ namespace GameLogic.VoronoiAlgorithm {
             }
 
             // Update regions for the neighboring arcs
-            if (arcToRemove.LeftArc != null && arcToRemove.RightArc != null) {
-                Region leftRegion = arcToRemove.LeftArc.region;
-                Region rightRegion = arcToRemove.RightArc.region;
+            Arc leftNeighbor = beachLine.getLeftNeighbor(arcToRemove);
+            Arc rightNeighbor = beachLine.getRightNeighbor(arcToRemove);
+            if (leftNeighbor != null && rightNeighbor != null) {
+                Region leftRegion = leftNeighbor.region;
+                Region rightRegion = rightNeighbor.region;
                 // Update the regions with the new Voronoi cell information
                 // This typically involves adding the new edge to the regions
-                leftRegion.addEdge(arcToRemove.LeftArc.Site, arcToRemove.RightArc.Site);
-                rightRegion.addEdge(arcToRemove.LeftArc.Site, arcToRemove.RightArc.Site);
+                leftRegion.addEdge(leftNeighbor.Site, rightNeighbor.Site);
+                rightRegion.addEdge(leftNeighbor.Site, rightNeighbor.Site);
             }
 
             // Remove the arc from the beachline
