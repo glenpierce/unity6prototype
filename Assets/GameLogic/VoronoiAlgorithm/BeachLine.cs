@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace GameLogic.VoronoiAlgorithm {
     public class BeachLine {
@@ -95,6 +97,30 @@ namespace GameLogic.VoronoiAlgorithm {
 
             AVLNode<Arc> successor = node.successor();
             return successor?.value;
+        }
+        
+        public override string ToString() {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (getRootArc() != null) {
+                stringBuilder.Append(getRootArc().Site.ToString());
+                // breadth-first traversal
+                Queue<Arc> queue = new Queue<Arc>();
+                queue.Enqueue(getRootArc());
+                while (queue.Count > 0) {
+                    Arc arc = queue.Dequeue();
+                    if (getLeftNeighbor(arc) != null) {
+                        stringBuilder.Append(" -> ");
+                        stringBuilder.Append(getLeftNeighbor(arc).Site.ToString());
+                        queue.Enqueue(getLeftNeighbor(arc));
+                    }
+                    if (getRightNeighbor(arc) != null) {
+                        stringBuilder.Append(" -> ");
+                        stringBuilder.Append(getRightNeighbor(arc).Site.ToString());
+                        queue.Enqueue(getRightNeighbor(arc));
+                    }
+                }
+            }
+            return stringBuilder.ToString();
         }
     }
 }

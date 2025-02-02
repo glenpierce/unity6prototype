@@ -29,7 +29,7 @@ public class LevelGeneratorUnity : MonoBehaviour {
     void voronoiAlgorithm(LevelGenerator levelGenerator) {
         List<Region> regions = levelGenerator.generateVoronoi(100, 100, 5);
         foreach (Region region in regions) {
-            // Debug.Log("Region: " + region.vertices.Count);
+            Debug.Log("Region: " + region.vertices.Count);
             Mesh mesh = new Mesh();
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
@@ -37,7 +37,7 @@ public class LevelGeneratorUnity : MonoBehaviour {
             // Convert region points to Unity vertices
             foreach (Point<double> point in region.vertices) {
                 vertices.Add(new Vector3((float)point.x, (float)point.y, 0));
-                // Debug.Log("Point: " + point.x + ", " + point.y);
+                Debug.Log("Point: " + point.x + ", " + point.y);
             }
 
             // Triangulate the region (assuming the points are in order)

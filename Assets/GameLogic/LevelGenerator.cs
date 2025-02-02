@@ -23,7 +23,7 @@ namespace GameLogic {
             for (int i = 0; i < numRegions; i++) {
                 for (int j = 0; j < numRegions; j++) {
                     Point<double> point = new Point<double>(random.Next(0, sizeX), random.Next(0, sizeY));
-                    // logger.Log("Point: " + point.x + ", " + point.y);
+                    logger.Log("Point: " + point.x + ", " + point.y);
                     points.Add(point);
                 }
             }

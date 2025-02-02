@@ -79,6 +79,8 @@ namespace GameLogic.VoronoiAlgorithm {
             if (rightArc != null) {
                 addCircleEvent(rightArc, eventQueue);
             }
+
+            logger.Log(beachLine.ToString());
         }
 
         private void addCircleEvent(Arc arc, PriorityQueue<Event> eventQueue) {
