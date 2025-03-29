@@ -23,11 +23,11 @@ public class LevelGeneratorUnity : MonoBehaviour {
                 }
             }
         }
-        voronoiAlgorithm(levelGenerator); // Never mind. I give up.
+        // voronoiAlgorithm(levelGenerator); // Never mind. I give up.
     }
 
     void voronoiAlgorithm(LevelGenerator levelGenerator) {
-        List<Region> regions = levelGenerator.generateVoronoi(100, 100, 5);
+        List<Region> regions = levelGenerator.generateVoronoi(100, 100, 21);
         foreach (Region region in regions) {
             Debug.Log("Region: " + region.vertices.Count);
             Mesh mesh = new Mesh();

@@ -62,13 +62,18 @@ namespace GameLogic.VoronoiAlgorithm {
             beachLine.addArc(newArc);
 
             if (earlyReturn) {
+                newArc.LeftArc = newArc;
+                newArc.RightArc = newArc;
                 logger.Log("beachLine was empty");
                 return;
             }
             
-            // Find the neighboring arcs
-            Arc leftArc = beachLine.getLeftNeighbor(newArc);
-            Arc rightArc = beachLine.getRightNeighbor(newArc);
+            Arc aboveArc = beachLine.findArcAbove(e.Point);
+            
+            Arc leftArc = aboveArc;
+            Arc rightArc = aboveArc;
+            
+            // beachLine.Replace(arcAbove, leftArc, newArc, rightArc);
 
             // Check for circle events with the left neighbor
             if (leftArc != null) {

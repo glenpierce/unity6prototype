@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DefaultNamespace;
 using GameLogic.VoronoiAlgorithm;
+using UnityEngine;
 using Random = System.Random;
 
 namespace GameLogic {
@@ -16,22 +17,29 @@ namespace GameLogic {
         }
         
         public List<Region> generateVoronoi(int sizeX, int sizeY, int numRegions) {
-            seed = new Random().Next();
-            random = new Random(seed);
-            
+            List<double> x = new List<double> {67, 81, 3, 60, 65, 92, 19, 9, 71, 48, 24, 46, 99, 29, 54, 77, 2, 14, 93, 40};
+            List<double> y = new List<double> {3, 9, 10, 20, 21, 26, 32, 35, 37, 39, 40, 43, 44, 46, 50, 53, 55, 61, 90, 99};
+            // this is the order they are in the queue
+
             List<Point<double>> points = new List<Point<double>>();
-            for (int i = 0; i < numRegions; i++) {
-                for (int j = 0; j < numRegions; j++) {
-                    Point<double> point = new Point<double>(random.Next(0, sizeX), random.Next(0, sizeY));
-                    logger.Log("Point: " + point.x + ", " + point.y);
-                    points.Add(point);
-                }
-            }
             
+            for (int i = 0; i < x.Count; i++) {
+                Point<double> point = new Point<double>(x[i], y[i]);
+                points.Add(point);
+                createCubeAtPosition((int) x[i], (int) y[i]);
+            }
             
             Voronoi voronoi = new Voronoi(points, logger);
             List<Region> regions = voronoi.generate();
             return regions;
+        }
+        
+        void createCubeAtPosition(int x, int y) {
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.position = new Vector3(x, 0, y);
+            // make the cube red
+            cube.GetComponent<Renderer>().material.color = Color.red;
+            // cube.transform.parent = levelContainer.transform;
         }
 
         public Level generateBluePrint(int sizeX, int sizeY) {
